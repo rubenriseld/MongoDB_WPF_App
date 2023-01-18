@@ -1,0 +1,45 @@
+﻿<Window x:Class="MongoDB_WPF_App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MongoDB_WPF_App"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="20"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="100"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="40"/>
+            <RowDefinition Height="175"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
+        <!--<Viewbox x:Name="LoginView" Grid.Column="3" Grid.Row="2">-->
+        <Grid x:Name ="GridLogin" Grid.Column="3" Grid.Row="2" Margin="100 50 100 50">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" HorizontalAlignment="Center">Enter connection string:</TextBlock>
+            <TextBox x:Name="TxtBoxConnect" Grid.Row="1" Height="20" TextChanged="TxtBoxConnect_TextChanged"></TextBox>
+            <Button x:Name="BtnConnect" Grid.Row="2" Margin="0 5 0 5" Width="50" Click="BtnConnect_Click" IsEnabled="False" HorizontalAlignment="Left">Connect</Button>
+            <TextBlock x:Name="TxtBoxStatus"  Grid.Column="3"  Grid.Row="3" Grid.RowSpan="2" Width="150" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Right" FontStyle="Italic" ></TextBlock>
+        </Grid>
+        <!--</Viewbox>-->
+
+
+    </Grid>
+</Window>
