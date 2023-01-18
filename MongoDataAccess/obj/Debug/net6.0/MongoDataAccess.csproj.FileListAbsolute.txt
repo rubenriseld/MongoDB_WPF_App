@@ -1,0 +1,12 @@
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\bin\Debug\net6.0\MongoDataAccess.deps.json
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\bin\Debug\net6.0\MongoDataAccess.dll
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\bin\Debug\net6.0\MongoDataAccess.pdb
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\MongoDataAccess.csproj.AssemblyReference.cache
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\MongoDataAccess.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\MongoDataAccess.AssemblyInfoInputs.cache
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\MongoDataAccess.AssemblyInfo.cs
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\MongoDataAccess.csproj.CoreCompileInputs.cache
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\MongoDataAccess.dll
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\refint\MongoDataAccess.dll
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\MongoDataAccess.pdb
+C:\Users\ruben\source\repos\db\MongoDB_WPF_App\MongoDataAccess\obj\Debug\net6.0\ref\MongoDataAccess.dll
