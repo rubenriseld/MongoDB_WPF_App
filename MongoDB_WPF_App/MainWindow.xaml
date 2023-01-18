@@ -5,29 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MongoDB_WPF_App"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20"/>
-            <ColumnDefinition Width="50"/>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="100"/>
-            <ColumnDefinition Width="50"/>
-            <ColumnDefinition Width="20"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20"/>
-            <RowDefinition Height="40"/>
-            <RowDefinition Height="175"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="150"/>
-            <RowDefinition Height="20"/>
-        </Grid.RowDefinitions>
-
-        <!--<Viewbox x:Name="LoginView" Grid.Column="3" Grid.Row="2">-->
-        <Grid x:Name ="GridLogin" Grid.Column="3" Grid.Row="2" Margin="100 50 100 50">
-
+        Title="MainWindow" Height="800" Width="700">
+    <Grid x:Name="GridContainer">
+        <Grid x:Name ="GridLogin" Width="260" Height="80" Visibility="Hidden">
             <Grid.RowDefinitions>
                 <RowDefinition Height="20"/>
                 <RowDefinition Height="30"/>
@@ -36,10 +16,55 @@
             <TextBlock Grid.Row="0" HorizontalAlignment="Center">Enter connection string:</TextBlock>
             <TextBox x:Name="TxtBoxConnect" Grid.Row="1" Height="20" TextChanged="TxtBoxConnect_TextChanged"></TextBox>
             <Button x:Name="BtnConnect" Grid.Row="2" Margin="0 5 0 5" Width="50" Click="BtnConnect_Click" IsEnabled="False" HorizontalAlignment="Left">Connect</Button>
-            <TextBlock x:Name="TxtBoxStatus"  Grid.Column="3"  Grid.Row="3" Grid.RowSpan="2" Width="150" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Right" FontStyle="Italic" ></TextBlock>
+            <TextBlock x:Name="TxtBlockStatus"  Grid.Column="3"  Grid.Row="3" Grid.RowSpan="2" Width="150" HorizontalAlignment="Right" VerticalAlignment="Center" TextAlignment="Right" FontStyle="Italic" ></TextBlock>
         </Grid>
-        <!--</Viewbox>-->
 
+        <Grid x:Name="GridMain" Visibility="Visible">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="20"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="30"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="100"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="350"/>
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="20"/>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Column="1" Grid.Row="1">Select collection:</TextBlock>
+            <ComboBox x:Name="CbxSelectCollection" Grid.Column="1" Grid.Row="2" Margin="0,5,0,5" Width="140" HorizontalAlignment="Left" SelectionChanged="CbxSelectCollection_SelectionChanged"   >
+                <ComboBoxItem>artworks</ComboBoxItem>
+                <ComboBoxItem>customers</ComboBoxItem>
+            </ComboBox  >
+            <TextBlock x:Name="TxtBlockSelectedCollection" Grid.Column="1" Grid.Row="4" FontStyle="Italic">No collection selected.</TextBlock>
+            <Button x:Name="BtnSelectCollection" Grid.Column="1" Grid.Row="2"  Margin="150,5,0,5" Width="50" HorizontalAlignment="Left" Click="BtnSelectCollection_Click" IsEnabled="False">Select</Button>
+            <StackPanel x:Name="StackPanelMutualButtons" Grid.Column="1" Grid.Row="6" Visibility="Hidden">
+                <Button x:Name="BtnReadAll" Margin="0 5 0 0" IsEnabled="False">Read all</Button>
+                <Button x:Name="BtnReadByIndex" Margin="0 5 0 0" IsEnabled="False">Read by index</Button>
+                <Button x:Name="BtnCreate" Margin="0 5 0 0" IsEnabled="False">Create</Button>
+            </StackPanel>
+            <StackPanel x:Name="StackPanelArtworkButtons" Grid.Column="1" Grid.Row="7" Visibility="Hidden">
+                <Button x:Name="BtnUpdatePrice" Margin="0 5 0 0" IsEnabled="False">Update price</Button>
+                <Button x:Name="BtnUpdateSaleStatus" Margin="0 5 0 0" IsEnabled="False">Update sale status</Button>
+                <Button x:Name="BtnUpdateCustomer" Margin="0 5 0 0" IsEnabled="False" >Update customer</Button>
+            </StackPanel>
+            <StackPanel x:Name="StackPanelCustomerButtons" Grid.Column="1" Grid.Row="7" Visibility="Hidden">
+                <Button x:Name="BtnUpdateCustomerInfo" Margin="0 5 0 0" IsEnabled="False">Update customer info</Button>
+            </StackPanel>
+            <TextBlock Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" FontWeight="Bold">Result view</TextBlock>
+            <ListBox x:Name="LbxResult" Grid.Column="4" Grid.Row="2" Grid.RowSpan="7">
+            </ListBox>
+        </Grid>
 
     </Grid>
 </Window>

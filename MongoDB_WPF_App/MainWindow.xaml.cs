@@ -25,25 +25,72 @@ namespace MongoDB_WPF_App
         public MainWindow()
         {
             InitializeComponent();
+            GridMain.Visibility = Visibility.Hidden;
+            GridLogin.Visibility = Visibility.Visible;
         }
         private async void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
             db.SetConnectionString(TxtBoxConnect.Text);
             if (await db.CheckConnection() == true)
             {
-                TxtBoxStatus.Text = "Connection successful.";
+                TxtBlockStatus.Text = "Connection successful.";
                 BtnConnect.IsEnabled = false;
                 TxtBoxConnect.IsEnabled = false;
                 await Task.Delay(1000);
                 GridLogin.Visibility = Visibility.Hidden;
                 await Task.Delay(150);
-
+                GridMain.Visibility = Visibility.Visible;
             }
-            else TxtBoxStatus.Text = "Connection failed.";
+            else TxtBlockStatus.Text = "Connection failed.";
         }
         private void TxtBoxConnect_TextChanged(object sender, TextChangedEventArgs e)
         {
             BtnConnect.IsEnabled = true;
+        }
+
+        private void BtnSelectCollection_Click(object sender, RoutedEventArgs e)
+        {
+
+            string selectedCollection = (CbxSelectCollection.SelectedItem as ComboBoxItem).Content.ToString();
+            TxtBlockSelectedCollection.Text = "Selected collection: " + selectedCollection;
+
+            StackPanelMutualButtons.Visibility = Visibility.Visible;
+
+            if (selectedCollection == "artworks")
+            {
+                StackPanelCustomerButtons.Visibility = Visibility.Hidden;
+                StackPanelArtworkButtons.Visibility = Visibility.Visible;
+            }
+            if (selectedCollection == "customers")
+            {
+                StackPanelArtworkButtons.Visibility = Visibility.Hidden;
+                StackPanelCustomerButtons.Visibility = Visibility.Visible;
+            }
+            //try
+            //{
+
+            //    var selectedcollection = cbxselectcollection.selecteditem.tostring();
+            //    if (selectedcollection != null)
+            //    {
+            //        db.selectedcollection = cbxselectcollection.selecteditem.tostring();
+            //        var result = await db.getall();
+            //        foreach (var item in result)
+            //        {
+            //            lbxresult.items.add($"{item.id}");
+            //        }
+            //    }
+            //}
+            //catch (exception ex)
+            //{
+            //    messagebox.show("error" + ex);
+            //    return;
+            //}
+
+        }
+
+        private void CbxSelectCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BtnSelectCollection.IsEnabled = true;
         }
     }
 }

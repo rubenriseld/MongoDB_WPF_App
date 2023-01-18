@@ -1,4 +1,7 @@
-﻿using MongoDB.Driver;
+﻿using MongoDataAccess.Interfaces;
+using MongoDataAccess.Models;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
 using System;
 using System.Collections.Generic;
@@ -15,6 +18,7 @@ public class DataAccess
 
     private const string ArtworkCollection = "artworks";
     private const string CustomerCollection = "customers";
+    public string SelectedCollection { get; set; }
 
     public void SetConnectionString(string connectionString)
     {
@@ -38,5 +42,35 @@ public class DataAccess
             return false;
         }
         return false;
+    }
+
+    private IMongoCollection<T> ConnectToMongo<T>(string collection)
+    {
+        var client = new MongoClient(ConnectionString);
+        var db = client.GetDatabase(DatabaseName);
+        return db.GetCollection<T>(collection);
+    }
+
+    public async Task<List<ArtworkModel>> GetAllArtworks()
+    {
+        var artworksCollection = ConnectToMongo<ArtworkModel>(ArtworkCollection);
+        var results = await artworksCollection.FindAsync(_ => true);
+        return results.ToList();
+    }
+    
+    public async Task<List<CustomerModel>> GetAllCustomers()
+    {
+        var customersCollection = ConnectToMongo<CustomerModel>(CustomerCollection);
+        var results = await customersCollection.FindAsync(_ => true);
+        return results.ToList();
+    }
+
+    public async Task<List<IModel>> GetAll()
+    {
+        MongoClient dbClient = new MongoClient(ConnectionString);
+        var database = dbClient.GetDatabase(DatabaseName);
+        var collection = database.GetCollection<IModel>(SelectedCollection);
+        var results = await collection.FindAsync(_ => true);
+        return results.ToList();
     }
 }
