@@ -51,26 +51,71 @@ public class DataAccess
         return db.GetCollection<T>(collection);
     }
 
+    //******************
+    //    ARTWORKS
+    //******************
     public async Task<List<ArtworkModel>> GetAllArtworks()
     {
         var artworksCollection = ConnectToMongo<ArtworkModel>(ArtworkCollection);
         var results = await artworksCollection.FindAsync(_ => true);
         return results.ToList();
     }
-    
+    public async Task<ArtworkModel> GetArtworkByIndex(int index)
+    {
+        var artworksCollection = ConnectToMongo<ArtworkModel>(ArtworkCollection);
+        var indexFilter = Builders<ArtworkModel>.Filter.Eq("Index", index);
+        var document = await artworksCollection.Find(indexFilter).FirstOrDefaultAsync();
+        return document;
+    }
+    public Task CreateArtwork(ArtworkModel artwork)
+    {
+        var artworksCollection = ConnectToMongo<ArtworkModel>(ArtworkCollection);
+        return artworksCollection.InsertOneAsync(artwork);
+    }
+    public Task UpdateArtwork(ArtworkModel artwork)
+    {
+        var artworksCollection = ConnectToMongo<ArtworkModel>(ArtworkCollection);
+        var filter = Builders<ArtworkModel>.Filter.Eq("Id", artwork.Id);
+        return artworksCollection.ReplaceOneAsync(filter, artwork, new ReplaceOptions { IsUpsert = true });
+    }
+    public Task DeleteArtwork(ArtworkModel artwork)
+    {
+        var artworksCollection = ConnectToMongo<ArtworkModel>(ArtworkCollection);
+        return artworksCollection.DeleteOneAsync(a => a.Id == artwork.Id);
+    }
+
+    //******************
+    //    CUSTOMERS
+    //******************
+
     public async Task<List<CustomerModel>> GetAllCustomers()
     {
         var customersCollection = ConnectToMongo<CustomerModel>(CustomerCollection);
         var results = await customersCollection.FindAsync(_ => true);
         return results.ToList();
     }
-
-    public async Task<List<IModel>> GetAll()
+    public async Task<CustomerModel> GetCustomerByIndex(int index)
     {
-        MongoClient dbClient = new MongoClient(ConnectionString);
-        var database = dbClient.GetDatabase(DatabaseName);
-        var collection = database.GetCollection<IModel>(SelectedCollection);
-        var results = await collection.FindAsync(_ => true);
-        return results.ToList();
+        var customersCollection = ConnectToMongo<CustomerModel>(CustomerCollection);
+        var indexFilter = Builders<CustomerModel>.Filter.Eq("Index", index);
+        var document = await customersCollection.Find(indexFilter).FirstOrDefaultAsync();
+        return document;
+    }
+
+    public Task CreateCustomer(CustomerModel customer)
+    {
+        var customersCollection = ConnectToMongo<CustomerModel>(CustomerCollection);
+        return customersCollection.InsertOneAsync(customer);
+    }
+    public Task UpdateCustomer(CustomerModel customer)
+    {
+        var customersCollection = ConnectToMongo<CustomerModel>(CustomerCollection);
+        var filter = Builders<CustomerModel>.Filter.Eq("Id", customer.Id);
+        return customersCollection.ReplaceOneAsync(filter, customer, new ReplaceOptions { IsUpsert = true });
+    }
+    public Task DeleteCustomer(CustomerModel customer)
+    {
+        var customersCollection = ConnectToMongo<CustomerModel>(CustomerCollection);
+        return customersCollection.DeleteOneAsync(a => a.Id == customer.Id);
     }
 }
