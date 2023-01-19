@@ -124,6 +124,7 @@
                 </ListBox>
                 <StackPanel x:Name="StackPanelUpdateDeleteButtons" VerticalAlignment="Center" Grid.Column="4" Grid.Row="9" Visibility="Visible" >
                     <WrapPanel HorizontalAlignment="Right" >
+                        <Button x:Name="BtnSelect" Margin="0 0 10 0" IsEnabled="False" Click="BtnSelect_Click">Select</Button>
                         <Button x:Name="BtnUpdate" Margin="0 0 10 0" IsEnabled="False" Click="BtnUpdate_Click">Update</Button>
                         <Button x:Name="BtnDelete" IsEnabled="False" Click="BtnDelete_Click">Delete</Button>
                     </WrapPanel>
