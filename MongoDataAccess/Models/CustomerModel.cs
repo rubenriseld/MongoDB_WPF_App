@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDataAccess.Models;
 
-public class CustomerModel : IModel
+public class CustomerModel
 {
     [BsonId]
     public ObjectId Id { get; set; }
@@ -23,10 +23,7 @@ public class CustomerModel : IModel
     [BsonElement("phoneNumber")]
     public string PhoneNumber { get; set; }
 
-    [BsonElement("emailAdress")]
+    [BsonElement("emailAddress")]
     public string EmailAddress { get; set; }
-
-    [BsonElement("adress")]
-    public string Address { get; set; }
 
 }
