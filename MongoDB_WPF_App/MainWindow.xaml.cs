@@ -13,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using MongoDataAccess.DataAccess;
+using MongoDataAccess.Models;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace MongoDB_WPF_App
 {
@@ -52,49 +55,280 @@ namespace MongoDB_WPF_App
             else TxtBlockStatus.Text = "Connection failed.";
         }
 
+        //******************************************************
+        //
+        //                  CRUD BUTTONS
+        //
+        //******************************************************
+
         //******************
-        //   CRUD BUTTONS
+        //    READ ALL
         //******************
+
+        private async void BtnReadAll_Click(object sender, RoutedEventArgs e)
+        {
+            HideInputField();
+            LbxResult.Items.Clear();
+            string selectedCollection = GetSelectedCollection();
+            if (selectedCollection == "artworks")
+            {
+                var result = await db.GetAllArtworks();
+                if (result.Count == 0) MessageBox.Show("No artworks in collection.");
+                foreach (var item in result)
+                {
+                    AddArtworkToResultView(item);
+                }
+            }
+            if(selectedCollection == "customers")
+            {
+                var result = await db.GetAllCustomers();
+                if (result.Count == 0) MessageBox.Show("No customers in collection.");
+                foreach (var item in result)
+                {
+                    AddCustomerToResultView(item);
+                }
+            }
+        }
+
+        //******************
+        //  READ BY INDEX
+        //******************
+
+        private void BtnReadByIndex_Click(object sender, RoutedEventArgs e)
+        {
+            HideInputField();
+            StackPanelIndexSearch.Visibility = Visibility.Visible;
+        }
+        private async void BtnEnterSearch_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var selectedCollection = GetSelectedCollection();
+                int index = Convert.ToInt32(TxtBoxIndexSearch.Text);
+                LbxResult.Items.Clear();
+                if (selectedCollection == "artworks")
+                {
+                    var result = await db.GetArtworkByIndex(index);
+                    if (result == null)
+                    {
+                        MessageBox.Show("Could not find an artwork with index: " + index);
+                    }
+                    else AddArtworkToResultView(result);
+                    ClearInputField();
+                }
+                if (selectedCollection == "customers")
+                {
+                    var result = await db.GetCustomerByIndex(index);
+                    if(result == null)
+                    {
+                        MessageBox.Show("Could not find a customer with index: " + index);
+                    }
+                    else AddCustomerToResultView(result);
+                    ClearInputField();
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Invalid input, please enter a number and try again.");
+                return;
+            }
+        }
+        private void BtnCancelSearch_Click(object sender, RoutedEventArgs e)
+        {
+            StackPanelIndexSearch.Visibility = Visibility.Hidden;
+        }
+
+        //******************
+        //     CREATE
+        //******************
+
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {
             ShowInputField();
+            WrapPanelCreateButtons.Visibility = Visibility.Visible;
         }
+        private async void BtnEnterCreateInput_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedCollection = GetSelectedCollection();
+            if (selectedCollection == "artworks")
+            {
+                var artwork = CreateArtworkModelFromInput();
+                var existingArtworks = await db.GetAllArtworks();
+
+                //auto-incrementing index
+                if (existingArtworks.Count() == 0)
+                {
+                    artwork.Index = 1;
+                }
+                else
+                {
+                    var sortedArtworks = existingArtworks.OrderBy(a => a.Index).ToList();
+                    var highestIndex = sortedArtworks.First();
+
+                    artwork.Index = highestIndex.Index + 1;
+                }
+                await db.CreateArtwork(artwork);
+                MessageBox.Show("Artwork added successfully!");
+                ClearInputField();
+            }
+            if (selectedCollection == "customers")
+            {
+                var customer = CreateCustomerModelFromInput();
+                var existingCustomers = await db.GetAllCustomers();
+
+                //auto-incrementing index
+                if(existingCustomers.Count() == 0)
+                {
+                    customer.Index = 1;
+                }
+                else
+                {
+                    var sortedCustomers = existingCustomers.OrderBy(c => c.Index).ToList();
+                    var highestIndex = sortedCustomers.First();
+
+                    customer.Index = highestIndex.Index + 1;
+                }
+                await db.CreateCustomer(customer);
+                MessageBox.Show("Customer added successfully!");
+                ClearInputField();
+            }
+        }
+        private void BtnCancelCreateInput_Click(object sender, RoutedEventArgs e)
+        {
+            HideInputField();
+            ClearInputField();
+        }
+
+        //******************
+        //     UPDATE
+        //******************
+
+        //update button by result view, moves selected object to input fields for editing
         private void BtnUpdate_Click(object sender, RoutedEventArgs e)
         {
+            ClearInputField();
             ShowInputField();
+
+            WrapPanelUpdateButtons.Visibility = Visibility.Visible;
+
+            string selectedCollection = GetSelectedCollection();
+            if (selectedCollection == "artworks")
+            {
+                var oldArtwork = GetArtworkFromSelection();
+
+                TxtBoxArtworkTitle.Text = oldArtwork.Title;
+                TxtBoxArtworkDescription.Text = oldArtwork.Description;
+                TxtBoxArtworkPrice.Text = oldArtwork.Price.ToString();
+                if(oldArtwork.Sold.ToString() == "0") CbxArtworkSold.SelectedIndex= 0;
+                else CbxArtworkSold.SelectedIndex = 1;
+            }
+            if (selectedCollection == "customers")
+            {
+                var oldCustomer = GetCustomerFromSelection();
+
+                TxtBoxCustomerFirstName.Text = oldCustomer.FirstName;
+                TxtBoxCustomerLastName.Text = oldCustomer.LastName;
+                TxtBoxCustomerPhoneNumber.Text = oldCustomer.PhoneNumber;
+                TxtBoxCustomerEmailAddress.Text = oldCustomer.EmailAddress;
+            }
         }
 
-        private void BtnCancelInput_Click(object sender, RoutedEventArgs e)
+        //update the selected object with changes made in input fields
+        private async void BtnEnterUpdateInput_Click(object sender, RoutedEventArgs e)
         {
-            StackPanelCustomerInput.Visibility = Visibility.Hidden;
-            StackPanelArtworkInput.Visibility = Visibility.Hidden;
-            WrapPanelInputButtons.Visibility = Visibility.Hidden;
+            string selectedCollection = GetSelectedCollection();
+            if(selectedCollection == "artworks")
+            {
+                var artwork = GetArtworkFromSelection();
+                var artworkChanges = CreateArtworkModelFromInput();
+                artwork.Title= artworkChanges.Title;
+                artwork.Description= artworkChanges.Description;
+                artwork.Price= artworkChanges.Price;
+                artwork.Sold= artworkChanges.Sold;
+
+                await db.UpdateArtwork(artwork);
+
+                MessageBox.Show("Artwork updated successfully!");
+                ClearInputField();
+                HideInputField();
+            }
+            if(selectedCollection == "customers")
+            {
+                var customer = GetCustomerFromSelection();
+                var customerChanges = CreateCustomerModelFromInput();
+                customer.FirstName= customerChanges.FirstName;
+                customer.LastName= customerChanges.LastName;
+                customer.PhoneNumber= customerChanges.PhoneNumber;
+                customer.EmailAddress= customerChanges.EmailAddress;
+
+                await db.UpdateCustomer(customer);
+
+                MessageBox.Show("Customer updated successfully!");
+                ClearInputField();
+                HideInputField();
+            }
         }
 
+        private void BtnCancelUpdateInput_Click(object sender, RoutedEventArgs e)
+        {
+            HideInputField();
+            ClearInputField();
+        }
 
         //******************
-        //   SELECTION
+        //     DELETE
         //******************
+
+        private void BtnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedCollection = GetSelectedCollection();
+            if (selectedCollection == "artworks")
+            {
+                var artwork = GetArtworkFromSelection();
+                db.DeleteArtwork(artwork);
+                LbxResult.Items.Remove(LbxResult.SelectedItem);
+                MessageBox.Show("Artwork deleted successfully!");
+                
+            }
+            if (selectedCollection == "customers")
+            {
+                var customer = GetCustomerFromSelection();
+                db.DeleteCustomer(customer);
+                LbxResult.Items.Remove(LbxResult.SelectedItem);
+                MessageBox.Show("Customer deleted successfully!");
+            }
+        }
+
+        //******************************************************
+        //
+        //                     SELECTION
+        //
+        //******************************************************
+
+        //enable select button to set current collection
         private void CbxSelectCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BtnSelectCollection.IsEnabled = true;
         }
+        //set current collection
         private void BtnSelectCollection_Click(object sender, RoutedEventArgs e)
         {
             string selectedCollection = GetSelectedCollection();
             TxtBlockSelectedCollection.Text = "Selected collection: " + selectedCollection;
-
-            StackPanelCustomerInput.Visibility = Visibility.Hidden;
-            StackPanelArtworkInput.Visibility = Visibility.Hidden;
-            WrapPanelInputButtons.Visibility = Visibility.Hidden;
-
-            StackPanelMutualButtons.Visibility = Visibility.Visible;
+            HideInputField();
+            LbxResult.Items.Clear();
+            StackPanelReadCreateButtons.Visibility = Visibility.Visible;
         }
+        //get current collection for operations
         private string GetSelectedCollection()
         {
             string selectedCollection = (CbxSelectCollection.SelectedItem as ComboBoxItem).Content.ToString();
             return selectedCollection;
         }
+
+        //******************
+        //   INPUT FIELDS
+        //******************
         private void ShowInputField()
         {
             string selectedCollection = GetSelectedCollection();
@@ -108,9 +342,159 @@ namespace MongoDB_WPF_App
                 StackPanelArtworkInput.Visibility = Visibility.Hidden;
                 StackPanelCustomerInput.Visibility = Visibility.Visible;
             }
-            WrapPanelInputButtons.Visibility = Visibility.Visible;
+        }
+        private void HideInputField()
+        {
+            StackPanelCustomerInput.Visibility = Visibility.Hidden;
+            StackPanelArtworkInput.Visibility = Visibility.Hidden;
+            WrapPanelCreateButtons.Visibility = Visibility.Hidden;
+            WrapPanelUpdateButtons.Visibility = Visibility.Hidden;
+        }
+        private void ClearInputField()
+        {
+            TxtBoxArtworkTitle.Text = "";
+            TxtBoxArtworkDescription.Text = "";
+            TxtBoxArtworkPrice.Text = "";
+            CbxArtworkSold.SelectedIndex = 1;
+
+            TxtBoxCustomerFirstName.Text = "";
+            TxtBoxCustomerLastName.Text = "";
+            TxtBoxCustomerPhoneNumber.Text = "";
+            TxtBoxCustomerEmailAddress.Text = "";
         }
 
-        
+        //shows SoldTo field only when sold==true
+        private void CbxArtworkSold_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string soldSelection = (CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString();
+            if (soldSelection == "true")
+            {
+                StackPanelArtworkCustomer.Visibility = Visibility.Visible;
+            }
+            else StackPanelArtworkCustomer.Visibility = Visibility.Hidden;
+        }
+
+        //show update/delete buttons when an object in result view is selected
+        private void LbxResult_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BtnUpdate.IsEnabled = true;
+            BtnDelete.IsEnabled = true;
+            if (LbxResult.SelectedItem == null)
+            {
+                BtnUpdate.IsEnabled = false;
+                BtnDelete.IsEnabled = false;
+            }
+        }
+
+        private void LbxResult_LostFocus(object sender, RoutedEventArgs e)
+        {
+            
+        }
+
+        //******************************************************
+        //
+        //                  MISC OPERATIONS
+        //
+        //******************************************************
+
+        //******************
+        //   RESULT VIEW
+        //******************
+        private void AddArtworkToResultView(ArtworkModel artwork)
+        {
+            ListBoxItem addedResult = new ListBoxItem();
+            addedResult.Content = $"Object ID: {artwork.Id}\n" +
+                                    $"Index: {artwork.Index}\n" +
+                                    $"Title: {artwork.Title}\n" +
+                                    $"Description: {artwork.Description}\n" +
+                                    $"Price: {artwork.Price}\n" +
+                                    $"Sold: {artwork.Sold}";
+            if (artwork.Sold == true) addedResult.Content += $"\nSold to: {artwork.SoldTo}";
+            addedResult.DataContext = artwork;
+
+            LbxResult.Items.Add(addedResult);
+
+            StackPanelUpdateDeleteButtons.Visibility = Visibility.Visible;
+        }
+        private void AddCustomerToResultView(CustomerModel customer)
+        {
+            ListBoxItem addedResult = new ListBoxItem();
+            addedResult.Content = $"Object ID: {customer.Id}\n" +
+                                    $"Index: {customer.Index}\n" +
+                                    $"Name: {customer.FullName}\n" +
+                                    $"Phone number: {customer.PhoneNumber}\n" +
+                                    $"Email address: {customer.EmailAddress}";
+            addedResult.DataContext = customer;
+            LbxResult.Items.Add(addedResult);
+            StackPanelUpdateDeleteButtons.Visibility = Visibility.Visible;
+        }
+
+        //get models from result view
+        private ArtworkModel GetArtworkFromSelection()
+        {
+            ArtworkModel artwork = (ArtworkModel)(((FrameworkElement)(LbxResult.SelectedItem)).DataContext);
+            return artwork;
+        }
+        private CustomerModel GetCustomerFromSelection()
+        {
+            CustomerModel customer = (CustomerModel)(((FrameworkElement)(LbxResult.SelectedItem)).DataContext);
+            return customer;
+        }
+
+        //******************
+        // MODEL CREATION
+        //******************
+        private ArtworkModel CreateArtworkModelFromInput()
+        {
+            try
+            {
+                //more error handling??
+                string title = TxtBoxArtworkTitle.Text;
+                string description = TxtBoxArtworkDescription.Text;
+                double price = Convert.ToDouble(TxtBoxArtworkPrice.Text);
+                bool sold = Convert.ToBoolean((CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString());
+
+                //TODO: ability to add selected customer as SoldTo CustomerModel for ArtworkModel
+
+
+                ArtworkModel artwork = new ArtworkModel()
+                {
+                    Title = title,
+                    Description = description,
+                    Price = price,
+                    Sold = sold
+                };
+                return artwork;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex + "\n An error occured, please try again.");
+                return null;
+            }
+        }
+        private CustomerModel CreateCustomerModelFromInput()
+        {
+            try
+            {
+                string firstName = TxtBoxCustomerFirstName.Text;
+                string lastName = TxtBoxCustomerLastName.Text;
+                string phoneNumber = TxtBoxCustomerPhoneNumber.Text;
+                string emailAddress = TxtBoxCustomerEmailAddress.Text;
+
+                CustomerModel customer = new CustomerModel()
+                {
+                    FirstName = firstName,
+                    LastName = lastName,
+                    PhoneNumber = phoneNumber,
+                    EmailAddress = emailAddress
+                };
+                return customer;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex + "\n An error occured, please try again.");
+                return null;
+            }
+        }
     }
 }
