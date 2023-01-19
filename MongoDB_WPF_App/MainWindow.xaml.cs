@@ -25,6 +25,7 @@ namespace MongoDB_WPF_App
     public partial class MainWindow : Window
     {
         DataAccess db = new DataAccess();
+        ArtworkModel temp = new ArtworkModel();
         public MainWindow()
         {
             InitializeComponent();
@@ -203,6 +204,17 @@ namespace MongoDB_WPF_App
         //     UPDATE
         //******************
 
+        //private async Task AssignCustomer(CustomerModel customer)
+        //{
+            
+        //    TxtBoxArtworkSoldTo.DataContext = customer;
+        //}
+        private void BtnSelect_Click(object sender, RoutedEventArgs e)
+        {
+            var customer = GetCustomerFromSelection();
+            TxtBoxArtworkSoldTo.DataContext = customer;
+            TxtBoxArtworkSoldTo.Text = customer.Id.ToString();
+        }
         //update button by result view, moves selected object to input fields for editing
         private void BtnUpdate_Click(object sender, RoutedEventArgs e)
         {
@@ -214,12 +226,12 @@ namespace MongoDB_WPF_App
             string selectedCollection = GetSelectedCollection();
             if (selectedCollection == "artworks")
             {
-                var oldArtwork = GetArtworkFromSelection();
+                temp = GetArtworkFromSelection();
 
-                TxtBoxArtworkTitle.Text = oldArtwork.Title;
-                TxtBoxArtworkDescription.Text = oldArtwork.Description;
-                TxtBoxArtworkPrice.Text = oldArtwork.Price.ToString();
-                if(oldArtwork.Sold.ToString() == "0") CbxArtworkSold.SelectedIndex= 0;
+                TxtBoxArtworkTitle.Text = temp.Title;
+                TxtBoxArtworkDescription.Text = temp.Description;
+                TxtBoxArtworkPrice.Text = temp.Price.ToString();
+                if(temp.Sold.ToString() == "0") CbxArtworkSold.SelectedIndex= 0;
                 else CbxArtworkSold.SelectedIndex = 1;
             }
             if (selectedCollection == "customers")
@@ -239,12 +251,15 @@ namespace MongoDB_WPF_App
             string selectedCollection = GetSelectedCollection();
             if(selectedCollection == "artworks")
             {
-                var artwork = GetArtworkFromSelection();
+                var artwork = temp;
                 var artworkChanges = CreateArtworkModelFromInput();
                 artwork.Title= artworkChanges.Title;
                 artwork.Description= artworkChanges.Description;
                 artwork.Price= artworkChanges.Price;
                 artwork.Sold= artworkChanges.Sold;
+
+                CustomerModel soldTo = (CustomerModel)(((FrameworkElement)(TxtBoxArtworkSoldTo)).DataContext);
+                artwork.SoldTo = soldTo;
 
                 await db.UpdateArtwork(artwork);
 
@@ -364,12 +379,21 @@ namespace MongoDB_WPF_App
         }
 
         //shows SoldTo field only when sold==true
-        private void CbxArtworkSold_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private async void CbxArtworkSold_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string soldSelection = (CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString();
             if (soldSelection == "true")
             {
                 StackPanelArtworkCustomer.Visibility = Visibility.Visible;
+                LbxResult.Items.Clear();
+                var result = await db.GetAllCustomers();
+                if (result.Count == 0) MessageBox.Show("No customers in collection.");
+                foreach (var item in result)
+                {
+                    AddCustomerToResultView(item);
+                }
+                BtnSelect.IsEnabled = true;
+
             }
             else StackPanelArtworkCustomer.Visibility = Visibility.Hidden;
         }
@@ -409,7 +433,7 @@ namespace MongoDB_WPF_App
                                     $"Description: {artwork.Description}\n" +
                                     $"Price: {artwork.Price}\n" +
                                     $"Sold: {artwork.Sold}";
-            if (artwork.Sold == true) addedResult.Content += $"\nSold to: {artwork.SoldTo}";
+            if (artwork.Sold == true) addedResult.Content += $"\nSold to: {artwork.SoldTo.FullName}";
             addedResult.DataContext = artwork;
 
             LbxResult.Items.Add(addedResult);
@@ -454,15 +478,17 @@ namespace MongoDB_WPF_App
                 double price = Convert.ToDouble(TxtBoxArtworkPrice.Text);
                 bool sold = Convert.ToBoolean((CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString());
 
-                //TODO: ability to add selected customer as SoldTo CustomerModel for ArtworkModel
 
+                //TODO: ability to add selected customer as SoldTo CustomerModel for ArtworkModel
+                CustomerModel soldTo = (CustomerModel)(((FrameworkElement)(TxtBoxArtworkSoldTo)).DataContext);
 
                 ArtworkModel artwork = new ArtworkModel()
                 {
                     Title = title,
                     Description = description,
                     Price = price,
-                    Sold = sold
+                    Sold = sold,
+                    SoldTo= soldTo
                 };
                 return artwork;
             }
@@ -496,5 +522,7 @@ namespace MongoDB_WPF_App
                 return null;
             }
         }
+
+        
     }
 }
