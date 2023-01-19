@@ -57,24 +57,32 @@
             <Button x:Name="BtnSelectCollection" Grid.Column="1" Grid.Row="2"  Margin="150,5,0,5" Width="50" HorizontalAlignment="Left" Click="BtnSelectCollection_Click" IsEnabled="False">Select</Button>
             
             <!--CRUD BUTTONS FOR BOTH COLLECTIONS-->
-            <StackPanel x:Name="StackPanelMutualButtons" Grid.Column="1" Grid.Row="6" Visibility="Hidden">
-                <Button x:Name="BtnReadAll" Margin="0 5 0 0" IsEnabled="True">Read all</Button>
-                <Button x:Name="BtnReadByIndex" Margin="0 5 0 0" IsEnabled="True">Read by index</Button>
+            <StackPanel x:Name="StackPanelReadCreateButtons" Grid.Column="1" Grid.Row="6" Visibility="Hidden">
+                <Button x:Name="BtnReadAll" Margin="0 5 0 0" IsEnabled="True" Click="BtnReadAll_Click">Read all</Button>
+                <Button x:Name="BtnReadByIndex" Margin="0 5 0 0" IsEnabled="True" Click="BtnReadByIndex_Click">Read by index</Button>
                 <Button x:Name="BtnCreate" Margin="0 5 0 0" IsEnabled="True" Click="BtnCreate_Click">Create</Button>
-                <Button x:Name="BtnUpdate" Margin="0 5 0 0" IsEnabled="False" Click="BtnUpdate_Click">Update</Button>
+                
             </StackPanel>
             
-            <!--CRUD BUTTONS FOR ARTWORK COLLECTION--><!--
-            <StackPanel x:Name="StackPanelArtworkButtons" Grid.Column="1" Grid.Row="7" Visibility="Visible">
-                <Button x:Name="BtnUpdatePrice" Margin="0 5 0 0" IsEnabled="False">Update price</Button>
-                <Button x:Name="BtnUpdateSaleStatus" Margin="0 5 0 0" IsEnabled="False">Update sale status</Button>
-                <Button x:Name="BtnUpdateCustomer" Margin="0 5 0 0" IsEnabled="False" >Update customer</Button>
-            </StackPanel>
-            --><!--CRUD BUTTONS FOR CUSTOMER COLLECTION--><!--
-            <StackPanel x:Name="StackPanelCustomerButtons" Grid.Column="1" Grid.Row="7" Visibility="Visible">
-                <Button x:Name="BtnUpdateCustomerInfo" Margin="0 5 0 0" IsEnabled="False">Update customer info</Button>
-            </StackPanel>-->
+
+            <WrapPanel x:Name="WrapPanelUpdateButtons" VerticalAlignment="Center" Grid.Column="1" Grid.Row="9" Visibility="Hidden">
+                <Button x:Name="BtnEnterUpdateInput" Width="50" Margin="0 0 10 0" Click="BtnEnterUpdateInput_Click" >Update</Button>
+                <Button x:Name="BtnCancelUpdateInput" Width="50" HorizontalAlignment="Right" Click="BtnCancelUpdateInput_Click">Cancel</Button>
+            </WrapPanel>
+            <WrapPanel x:Name="WrapPanelCreateButtons" VerticalAlignment="Center" Grid.Column="1" Grid.Row="9" Visibility="Hidden">
+                <Button x:Name="BtnEnterCreateInput" Width="50" Margin="0 0 10 0"  Click="BtnEnterCreateInput_Click">Create</Button>
+                <Button x:Name="BtnCancelCreateInput" Width="50" HorizontalAlignment="Right" Click="BtnCancelCreateInput_Click">Cancel</Button>
+            </WrapPanel>
             
+            <!--INPUT PANEL FOR INDEX SEARCH-->
+            <StackPanel x:Name="StackPanelIndexSearch" Grid.Column="1" Grid.Row="8" Visibility="Hidden">
+                <TextBlock>Enter index:</TextBlock>
+                <TextBox x:Name="TxtBoxIndexSearch" Margin="0 5 0 5"></TextBox>
+                <WrapPanel x:Name="WrapPanelSearchButtons" VerticalAlignment="Center" Grid.Column="1" Grid.Row="9" Visibility="Visible">
+                    <Button x:Name="BtnEnterSearch" Width="50" Margin="0 0 10 0" Click="BtnEnterSearch_Click" >Search</Button>
+                    <Button x:Name="BtnCancelSearch" Width="50" HorizontalAlignment="Right" Click="BtnCancelSearch_Click">Cancel</Button>
+                </WrapPanel>
+            </StackPanel>
             
             <!--CREATE/UPDATE PANEL FOR ARTWORK COLLECTION-->
             <StackPanel x:Name="StackPanelArtworkInput" Grid.Column="1" Grid.Row="8" Visibility="Hidden" >
@@ -85,21 +93,16 @@
                 <TextBlock>Price:</TextBlock>
                 <TextBox x:Name="TxtBoxArtworkPrice" Margin="0 5 0 5"></TextBox>
                 <TextBlock>Sold:</TextBlock>
-                <ComboBox x:Name="CbxArtworkSold" Margin="0 5 0 5">
+                <ComboBox x:Name="CbxArtworkSold" Margin="0 5 0 5" SelectionChanged="CbxArtworkSold_SelectionChanged">
                     <ComboBoxItem>true</ComboBoxItem>
                     <ComboBoxItem>false</ComboBoxItem>
                 </ComboBox>
-                <StackPanel x:Name="StackPanelArtworkCustomer">
+                <StackPanel x:Name="StackPanelArtworkCustomer" Visibility="Hidden">
                     <TextBlock>Sold to:</TextBlock>
                     <TextBox x:Name="TxtBoxArtworkSoldTo" Margin="0 5 0 5" IsEnabled="False"></TextBox>
                     <TextBlock x:Name="TxtBlock" FontStyle="Italic" TextWrapping="Wrap">Please select a customer to assign from result view.</TextBlock>
                 </StackPanel>
             </StackPanel>
-
-            <WrapPanel x:Name="WrapPanelInputButtons" VerticalAlignment="Center" Grid.Column="1" Grid.Row="9" Visibility="Hidden">
-                <Button x:Name="BtnEnterInput" Width="50" Margin="0 0 10 0" IsEnabled="False">Ok</Button>
-                <Button x:Name="BtnCancelInput" Width="50" HorizontalAlignment="Right" Click="BtnCancelInput_Click">Cancel</Button>
-            </WrapPanel>
             
             <!--CREATE/UPDATE PANEL FOR CUSTOMER COLLECTION-->
             <StackPanel x:Name="StackPanelCustomerInput" Grid.Column="1" Grid.Row="8" Visibility="Hidden">
@@ -111,22 +114,41 @@
                 <TextBox x:Name="TxtBoxCustomerPhoneNumber" Margin="0 5 0 5"></TextBox>
                 <TextBlock>Email address:</TextBlock>
                 <TextBox x:Name="TxtBoxCustomerEmailAddress" Margin="0 5 0 5"></TextBox>
-                <TextBlock>Address:</TextBlock>
-                <TextBox x:Name="TxtBoxCustomerAddress" Margin="0 5 0 5"></TextBox>
-
-
-                <!--<WrapPanel Margin="0 20 0 0">
-                    <Button x:Name="BtnEnterCustomerInput" Width="50" Margin="0 0 10 0">Ok</Button>
-                    <Button x:Name="BtnCancelCustomerInput" Width="50" HorizontalAlignment="Right">Cancel</Button>
-                </WrapPanel>-->
-                
+                <!--<TextBlock>Address:</TextBlock>
+                <TextBox x:Name="TxtBoxCustomerAddress" Margin="0 5 0 5"></TextBox>-->
             </StackPanel>
             
             <!--RESULT LIST-->
-            <TextBlock Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" FontWeight="Bold">Result view</TextBlock>
-            <ListBox x:Name="LbxResult" Grid.Column="4" Grid.Row="2" Grid.RowSpan="7">
-            </ListBox>
+                <TextBlock Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" FontWeight="Bold">Result view</TextBlock>
+                <ListBox x:Name="LbxResult" Grid.Column="4" Grid.Row="2" Grid.RowSpan="7" SelectionChanged="LbxResult_SelectionChanged" LostFocus="LbxResult_LostFocus">
+                </ListBox>
+                <StackPanel x:Name="StackPanelUpdateDeleteButtons" VerticalAlignment="Center" Grid.Column="4" Grid.Row="9" Visibility="Visible" >
+                    <WrapPanel HorizontalAlignment="Right" >
+                        <Button x:Name="BtnUpdate" Margin="0 0 10 0" IsEnabled="False" Click="BtnUpdate_Click">Update</Button>
+                        <Button x:Name="BtnDelete" IsEnabled="False" Click="BtnDelete_Click">Delete</Button>
+                    </WrapPanel>
+                </StackPanel>
+
         </Grid>
 
     </Grid>
 </Window>
+
+<!--CRUD BUTTONS FOR ARTWORK COLLECTION-->
+<!--
+            <StackPanel x:Name="StackPanelArtworkButtons" Grid.Column="1" Grid.Row="7" Visibility="Visible">
+                <Button x:Name="BtnUpdatePrice" Margin="0 5 0 0" IsEnabled="False">Update price</Button>
+                <Button x:Name="BtnUpdateSaleStatus" Margin="0 5 0 0" IsEnabled="False">Update sale status</Button>
+                <Button x:Name="BtnUpdateCustomer" Margin="0 5 0 0" IsEnabled="False" >Update customer</Button>
+            </StackPanel>
+            -->
+<!--CRUD BUTTONS FOR CUSTOMER COLLECTION-->
+<!--
+            <StackPanel x:Name="StackPanelCustomerButtons" Grid.Column="1" Grid.Row="7" Visibility="Visible">
+                <Button x:Name="BtnUpdateCustomerInfo" Margin="0 5 0 0" IsEnabled="False">Update customer info</Button>
+            </StackPanel>-->
+    
+<!--<WrapPanel Margin="0 20 0 0">
+                    <Button x:Name="BtnEnterCustomerInput" Width="50" Margin="0 0 10 0">Ok</Button>
+                    <Button x:Name="BtnCancelCustomerInput" Width="50" HorizontalAlignment="Right">Cancel</Button>
+                </WrapPanel>-->
