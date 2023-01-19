@@ -24,9 +24,9 @@ public class CustomerModel : IModel
     public string PhoneNumber { get; set; }
 
     [BsonElement("emailAdress")]
-    public string EmailAdress { get; set; }
+    public string EmailAddress { get; set; }
 
     [BsonElement("adress")]
-    public string Adress { get; set; }
+    public string Address { get; set; }
 
 }
