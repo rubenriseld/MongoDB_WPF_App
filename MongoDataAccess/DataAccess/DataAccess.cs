@@ -1,5 +1,4 @@
-﻿using MongoDataAccess.Interfaces;
-using MongoDataAccess.Models;
+﻿using MongoDataAccess.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Core.Clusters;
@@ -18,7 +17,6 @@ public class DataAccess
 
     private const string ArtworkCollection = "artworks";
     private const string CustomerCollection = "customers";
-    public string SelectedCollection { get; set; }
 
     public void SetConnectionString(string connectionString)
     {
@@ -29,13 +27,12 @@ public class DataAccess
         try
         {
             var client = new MongoClient(ConnectionString);
-            var databases = client.ListDatabasesAsync().Result;
-            //databases.MoveNextAsync();
+            var databases = await client.ListDatabasesAsync();
+
             if (client.Cluster.Description.State == ClusterState.Connected)
             {
                 return true;
             }
-            
         }
         catch (Exception)
         {
@@ -43,7 +40,6 @@ public class DataAccess
         }
         return false;
     }
-
     private IMongoCollection<T> ConnectToMongo<T>(string collection)
     {
         var client = new MongoClient(ConnectionString);
@@ -101,7 +97,6 @@ public class DataAccess
         var document = await customersCollection.Find(indexFilter).FirstOrDefaultAsync();
         return document;
     }
-
     public Task CreateCustomer(CustomerModel customer)
     {
         var customersCollection = ConnectToMongo<CustomerModel>(CustomerCollection);
