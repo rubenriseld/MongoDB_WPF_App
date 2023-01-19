@@ -28,6 +28,14 @@ namespace MongoDB_WPF_App
             GridMain.Visibility = Visibility.Hidden;
             GridLogin.Visibility = Visibility.Visible;
         }
+
+        //******************
+        //    CONNECTION
+        //******************
+        private void TxtBoxConnect_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            BtnConnect.IsEnabled = true;
+        }
         private async void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
             db.SetConnectionString(TxtBoxConnect.Text);
@@ -43,54 +51,66 @@ namespace MongoDB_WPF_App
             }
             else TxtBlockStatus.Text = "Connection failed.";
         }
-        private void TxtBoxConnect_TextChanged(object sender, TextChangedEventArgs e)
+
+        //******************
+        //   CRUD BUTTONS
+        //******************
+        private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {
-            BtnConnect.IsEnabled = true;
+            ShowInputField();
+        }
+        private void BtnUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            ShowInputField();
         }
 
-        private void BtnSelectCollection_Click(object sender, RoutedEventArgs e)
+        private void BtnCancelInput_Click(object sender, RoutedEventArgs e)
         {
-
-            string selectedCollection = (CbxSelectCollection.SelectedItem as ComboBoxItem).Content.ToString();
-            TxtBlockSelectedCollection.Text = "Selected collection: " + selectedCollection;
-
-            StackPanelMutualButtons.Visibility = Visibility.Visible;
-
-            if (selectedCollection == "artworks")
-            {
-                StackPanelCustomerButtons.Visibility = Visibility.Hidden;
-                StackPanelArtworkButtons.Visibility = Visibility.Visible;
-            }
-            if (selectedCollection == "customers")
-            {
-                StackPanelArtworkButtons.Visibility = Visibility.Hidden;
-                StackPanelCustomerButtons.Visibility = Visibility.Visible;
-            }
-            //try
-            //{
-
-            //    var selectedcollection = cbxselectcollection.selecteditem.tostring();
-            //    if (selectedcollection != null)
-            //    {
-            //        db.selectedcollection = cbxselectcollection.selecteditem.tostring();
-            //        var result = await db.getall();
-            //        foreach (var item in result)
-            //        {
-            //            lbxresult.items.add($"{item.id}");
-            //        }
-            //    }
-            //}
-            //catch (exception ex)
-            //{
-            //    messagebox.show("error" + ex);
-            //    return;
-            //}
-
+            StackPanelCustomerInput.Visibility = Visibility.Hidden;
+            StackPanelArtworkInput.Visibility = Visibility.Hidden;
+            WrapPanelInputButtons.Visibility = Visibility.Hidden;
         }
 
+
+        //******************
+        //   SELECTION
+        //******************
         private void CbxSelectCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BtnSelectCollection.IsEnabled = true;
         }
+        private void BtnSelectCollection_Click(object sender, RoutedEventArgs e)
+        {
+            string selectedCollection = GetSelectedCollection();
+            TxtBlockSelectedCollection.Text = "Selected collection: " + selectedCollection;
+
+            StackPanelCustomerInput.Visibility = Visibility.Hidden;
+            StackPanelArtworkInput.Visibility = Visibility.Hidden;
+            WrapPanelInputButtons.Visibility = Visibility.Hidden;
+
+            StackPanelMutualButtons.Visibility = Visibility.Visible;
+        }
+        private string GetSelectedCollection()
+        {
+            string selectedCollection = (CbxSelectCollection.SelectedItem as ComboBoxItem).Content.ToString();
+            return selectedCollection;
+        }
+        private void ShowInputField()
+        {
+            string selectedCollection = GetSelectedCollection();
+            if (selectedCollection == "artworks")
+            {
+                StackPanelCustomerInput.Visibility = Visibility.Hidden;
+                StackPanelArtworkInput.Visibility = Visibility.Visible;
+            }
+            if (selectedCollection == "customers")
+            {
+                StackPanelArtworkInput.Visibility = Visibility.Hidden;
+                StackPanelCustomerInput.Visibility = Visibility.Visible;
+            }
+            WrapPanelInputButtons.Visibility = Visibility.Visible;
+        }
+
+        
     }
 }
