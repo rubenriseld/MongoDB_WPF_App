@@ -1,5 +1,4 @@
-﻿using MongoDataAccess.Interfaces;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
 namespace MongoDataAccess.Models;
