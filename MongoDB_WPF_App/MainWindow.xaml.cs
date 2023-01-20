@@ -212,11 +212,6 @@ namespace MongoDB_WPF_App
         //     UPDATE
         //******************
 
-        //private async Task AssignCustomer(CustomerModel customer)
-        //{
-
-        //    TxtBoxArtworkSoldTo.DataContext = customer;
-        //}
         private void BtnSelect_Click(object sender, RoutedEventArgs e)
         {
             var customer = GetCustomerFromSelection();
