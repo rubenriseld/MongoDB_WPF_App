@@ -15,7 +15,8 @@ namespace MongoDB_WPF_App;
 public partial class MainWindow : Window
 {
     DataAccess db = new DataAccess();
-    ArtworkModel temp = new ArtworkModel();
+    ArtworkModel oldArtwork = new ArtworkModel();
+    CustomerModel oldCustomer = new CustomerModel();
     public MainWindow()
     {
         InitializeComponent();
@@ -231,21 +232,21 @@ public partial class MainWindow : Window
         string selectedCollection = GetSelectedCollection();
         if (selectedCollection == "artworks")
         {
-            temp = GetArtworkFromSelection();
+            oldArtwork = GetArtworkFromSelection();
 
-            TxtBoxArtworkTitle.Text = temp.Title;
-            TxtBoxArtworkDescription.Text = temp.Description;
-            TxtBoxArtworkPrice.Text = temp.Price.ToString();
-            if (temp.Sold.ToString() == "False") CbxArtworkSold.SelectedIndex = 0;
+            TxtBoxArtworkTitle.Text = oldArtwork.Title;
+            TxtBoxArtworkDescription.Text = oldArtwork.Description;
+            TxtBoxArtworkPrice.Text = oldArtwork.Price.ToString();
+            if (oldArtwork.Sold.ToString() == "False") CbxArtworkSold.SelectedIndex = 0;
             else
             {
                 CbxArtworkSold.SelectedIndex = 1;
-                if (temp.SoldTo != null) TxtBoxArtworkSoldTo.Text = temp.SoldTo.Id.ToString();
+                if (oldArtwork.SoldTo != null) TxtBoxArtworkSoldTo.Text = oldArtwork.SoldTo.Id.ToString();
             }
         }
         if (selectedCollection == "customers")
         {
-            var oldCustomer = GetCustomerFromSelection();
+            oldCustomer = GetCustomerFromSelection();
 
             TxtBoxCustomerFirstName.Text = oldCustomer.FirstName;
             TxtBoxCustomerLastName.Text = oldCustomer.LastName;
@@ -262,7 +263,7 @@ public partial class MainWindow : Window
         {
             if (ValidateArtworkInput() == true)
             {
-                var artwork = temp;
+                var artwork = oldArtwork;
                 var artworkChanges = CreateArtworkModelFromInput();
                 artwork.Title = artworkChanges.Title;
                 artwork.Description = artworkChanges.Description;
@@ -292,7 +293,7 @@ public partial class MainWindow : Window
         {
             if (ValidateArtworkInput() == true)
             {
-                var customer = GetCustomerFromSelection();
+                var customer = oldCustomer;
                 var customerChanges = CreateCustomerModelFromInput();
                 customer.FirstName = customerChanges.FirstName;
                 customer.LastName = customerChanges.LastName;
