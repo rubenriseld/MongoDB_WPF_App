@@ -291,7 +291,7 @@ public partial class MainWindow : Window
         }
         if (selectedCollection == "customers")
         {
-            if (ValidateArtworkInput() == true)
+            if (ValidateCustomerInput() == true)
             {
                 var customer = oldCustomer;
                 var customerChanges = CreateCustomerModelFromInput();

@@ -34,6 +34,8 @@ public class DataAccess
         }
         return false;
     }
+
+    //generic connect
     private IMongoCollection<T> ConnectToMongo<T>(string collection)
     {
         var client = new MongoClient(ConnectionString);
