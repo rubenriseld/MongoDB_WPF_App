@@ -408,6 +408,7 @@ namespace MongoDB_WPF_App
             TxtBoxArtworkDescription.Text = "";
             TxtBoxArtworkPrice.Text = "";
             CbxArtworkSold.SelectedIndex = 0;
+            TxtBoxArtworkSoldTo.Text = "";
 
             TxtBoxCustomerFirstName.Text = "";
             TxtBoxCustomerLastName.Text = "";
