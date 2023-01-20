@@ -231,8 +231,12 @@ namespace MongoDB_WPF_App
                 TxtBoxArtworkTitle.Text = temp.Title;
                 TxtBoxArtworkDescription.Text = temp.Description;
                 TxtBoxArtworkPrice.Text = temp.Price.ToString();
-                if(temp.Sold.ToString() == "0") CbxArtworkSold.SelectedIndex= 0;
-                else CbxArtworkSold.SelectedIndex = 1;
+                if (temp.Sold.ToString() == "False") CbxArtworkSold.SelectedIndex = 1;
+                else
+                {
+                    CbxArtworkSold.SelectedIndex = 0;
+                    if(temp.SoldTo != null) TxtBoxArtworkSoldTo.Text = temp.SoldTo.Id.ToString();
+                }
             }
             if (selectedCollection == "customers")
             {
@@ -258,9 +262,16 @@ namespace MongoDB_WPF_App
                 artwork.Price= artworkChanges.Price;
                 artwork.Sold= artworkChanges.Sold;
 
+                //assign customer to artwork if selected
                 CustomerModel soldTo = (CustomerModel)(((FrameworkElement)(TxtBoxArtworkSoldTo)).DataContext);
                 artwork.SoldTo = soldTo;
 
+                //remove assigned customer if Sold bool is changed to false
+                string soldSelection = (CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString();
+                if (soldSelection == "false")
+                {
+                    artwork.SoldTo = null;
+                }
                 await db.UpdateArtwork(artwork);
 
                 MessageBox.Show("Artwork updated successfully!");
@@ -393,9 +404,12 @@ namespace MongoDB_WPF_App
                     AddCustomerToResultView(item);
                 }
                 BtnSelect.IsEnabled = true;
+            }
+            else
+            {
+                StackPanelArtworkCustomer.Visibility = Visibility.Hidden;
 
             }
-            else StackPanelArtworkCustomer.Visibility = Visibility.Hidden;
         }
 
         //show update/delete buttons when an object in result view is selected
@@ -522,7 +536,5 @@ namespace MongoDB_WPF_App
                 return null;
             }
         }
-
-        
     }
 }
