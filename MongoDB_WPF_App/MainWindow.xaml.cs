@@ -80,7 +80,7 @@ namespace MongoDB_WPF_App
                     AddArtworkToResultView(item);
                 }
             }
-            if(selectedCollection == "customers")
+            if (selectedCollection == "customers")
             {
                 var result = await db.GetAllCustomers();
                 if (result.Count == 0) MessageBox.Show("No customers in collection.");
@@ -120,7 +120,7 @@ namespace MongoDB_WPF_App
                 if (selectedCollection == "customers")
                 {
                     var result = await db.GetCustomerByIndex(index);
-                    if(result == null)
+                    if (result == null)
                     {
                         MessageBox.Show("Could not find a customer with index: " + index);
                     }
@@ -153,45 +153,53 @@ namespace MongoDB_WPF_App
             string selectedCollection = GetSelectedCollection();
             if (selectedCollection == "artworks")
             {
-                var artwork = CreateArtworkModelFromInput();
-                var existingArtworks = await db.GetAllArtworks();
-
-                //auto-incrementing index
-                if (existingArtworks.Count() == 0)
+                if (ValidateArtworkInput() == true)
                 {
-                    artwork.Index = 1;
-                }
-                else
-                {
-                    var sortedArtworks = existingArtworks.OrderBy(a => a.Index).ToList();
-                    var highestIndex = sortedArtworks.First();
+                    var artwork = CreateArtworkModelFromInput();
+                    var existingArtworks = await db.GetAllArtworks();
 
-                    artwork.Index = highestIndex.Index + 1;
+                    //auto-incrementing index
+                    if (existingArtworks.Count() == 0)
+                    {
+                        artwork.Index = 1;
+                    }
+                    else
+                    {
+                        var sortedArtworks = existingArtworks.OrderBy(a => a.Index).ToList();
+                        var highestIndex = sortedArtworks.First();
+
+                        artwork.Index = highestIndex.Index + 1;
+                    }
+                    await db.CreateArtwork(artwork);
+                    MessageBox.Show("Artwork added successfully!");
+                    ClearInputField();
                 }
-                await db.CreateArtwork(artwork);
-                MessageBox.Show("Artwork added successfully!");
-                ClearInputField();
+                else return;
             }
             if (selectedCollection == "customers")
             {
-                var customer = CreateCustomerModelFromInput();
-                var existingCustomers = await db.GetAllCustomers();
-
-                //auto-incrementing index
-                if(existingCustomers.Count() == 0)
+                if (ValidateCustomerInput() == true)
                 {
-                    customer.Index = 1;
-                }
-                else
-                {
-                    var sortedCustomers = existingCustomers.OrderBy(c => c.Index).ToList();
-                    var highestIndex = sortedCustomers.First();
+                    var customer = CreateCustomerModelFromInput();
+                    var existingCustomers = await db.GetAllCustomers();
 
-                    customer.Index = highestIndex.Index + 1;
+                    //auto-incrementing index
+                    if (existingCustomers.Count() == 0)
+                    {
+                        customer.Index = 1;
+                    }
+                    else
+                    {
+                        var sortedCustomers = existingCustomers.OrderBy(c => c.Index).ToList();
+                        var highestIndex = sortedCustomers.First();
+
+                        customer.Index = highestIndex.Index + 1;
+                    }
+                    await db.CreateCustomer(customer);
+                    MessageBox.Show("Customer added successfully!");
+                    ClearInputField();
                 }
-                await db.CreateCustomer(customer);
-                MessageBox.Show("Customer added successfully!");
-                ClearInputField();
+                else return;
             }
         }
         private void BtnCancelCreateInput_Click(object sender, RoutedEventArgs e)
@@ -206,7 +214,7 @@ namespace MongoDB_WPF_App
 
         //private async Task AssignCustomer(CustomerModel customer)
         //{
-            
+
         //    TxtBoxArtworkSoldTo.DataContext = customer;
         //}
         private void BtnSelect_Click(object sender, RoutedEventArgs e)
@@ -231,11 +239,11 @@ namespace MongoDB_WPF_App
                 TxtBoxArtworkTitle.Text = temp.Title;
                 TxtBoxArtworkDescription.Text = temp.Description;
                 TxtBoxArtworkPrice.Text = temp.Price.ToString();
-                if (temp.Sold.ToString() == "False") CbxArtworkSold.SelectedIndex = 1;
+                if (temp.Sold.ToString() == "False") CbxArtworkSold.SelectedIndex = 0;
                 else
                 {
-                    CbxArtworkSold.SelectedIndex = 0;
-                    if(temp.SoldTo != null) TxtBoxArtworkSoldTo.Text = temp.SoldTo.Id.ToString();
+                    CbxArtworkSold.SelectedIndex = 1;
+                    if (temp.SoldTo != null) TxtBoxArtworkSoldTo.Text = temp.SoldTo.Id.ToString();
                 }
             }
             if (selectedCollection == "customers")
@@ -253,45 +261,69 @@ namespace MongoDB_WPF_App
         private async void BtnEnterUpdateInput_Click(object sender, RoutedEventArgs e)
         {
             string selectedCollection = GetSelectedCollection();
-            if(selectedCollection == "artworks")
+            if (selectedCollection == "artworks")
             {
-                var artwork = temp;
-                var artworkChanges = CreateArtworkModelFromInput();
-                artwork.Title= artworkChanges.Title;
-                artwork.Description= artworkChanges.Description;
-                artwork.Price= artworkChanges.Price;
-                artwork.Sold= artworkChanges.Sold;
-
-                //assign customer to artwork if selected
-                CustomerModel soldTo = (CustomerModel)(((FrameworkElement)(TxtBoxArtworkSoldTo)).DataContext);
-                artwork.SoldTo = soldTo;
-
-                //remove assigned customer if Sold bool is changed to false
-                string soldSelection = (CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString();
-                if (soldSelection == "false")
+                if (ValidateArtworkInput() == true)
                 {
-                    artwork.SoldTo = null;
+                    var artwork = temp;
+                    var artworkChanges = CreateArtworkModelFromInput();
+                    artwork.Title = artworkChanges.Title;
+                    artwork.Description = artworkChanges.Description;
+                    artwork.Price = artworkChanges.Price;
+                    artwork.Sold = artworkChanges.Sold;
+
+                    //assign customer to artwork if selected
+                    CustomerModel soldTo = (CustomerModel)(((FrameworkElement)(TxtBoxArtworkSoldTo)).DataContext);
+                    artwork.SoldTo = soldTo;
+
+                    //remove assigned customer if Sold bool is changed to false
+                    string soldSelection = (CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString();
+                    if (soldSelection == "false")
+                    {
+                        artwork.SoldTo = null;
+                    }
+                    await db.UpdateArtwork(artwork);
+
+                    MessageBox.Show("Artwork updated successfully!");
+                    ClearInputField();
+                    HideInputField();
                 }
-                await db.UpdateArtwork(artwork);
-
-                MessageBox.Show("Artwork updated successfully!");
-                ClearInputField();
-                HideInputField();
+                else return;
             }
-            if(selectedCollection == "customers")
+            if (selectedCollection == "customers")
             {
-                var customer = GetCustomerFromSelection();
-                var customerChanges = CreateCustomerModelFromInput();
-                customer.FirstName= customerChanges.FirstName;
-                customer.LastName= customerChanges.LastName;
-                customer.PhoneNumber= customerChanges.PhoneNumber;
-                customer.EmailAddress= customerChanges.EmailAddress;
+                if (ValidateArtworkInput() == true)
+                {
+                    var customer = GetCustomerFromSelection();
+                    var customerChanges = CreateCustomerModelFromInput();
+                    customer.FirstName = customerChanges.FirstName;
+                    customer.LastName = customerChanges.LastName;
+                    customer.PhoneNumber = customerChanges.PhoneNumber;
+                    customer.EmailAddress = customerChanges.EmailAddress;
 
-                await db.UpdateCustomer(customer);
+                    await db.UpdateCustomer(customer);
 
-                MessageBox.Show("Customer updated successfully!");
-                ClearInputField();
-                HideInputField();
+                    //update customer reference in artworks
+                    var artworkList = await db.GetAllArtworks();
+                    if (artworkList.Count > 0)
+                    {
+                        foreach (var item in artworkList)
+                        {
+                            if (item.SoldTo != null && item.SoldTo.Id == customer.Id)
+                            {
+                                item.SoldTo.FirstName = customer.FirstName;
+                                item.SoldTo.LastName = customer.LastName;
+                                item.SoldTo.PhoneNumber = customer.PhoneNumber;
+                                item.SoldTo.EmailAddress = customer.EmailAddress;
+                                await db.UpdateArtwork(item);
+                            }
+                        }
+                    }
+                    MessageBox.Show("Customer updated successfully!");
+                    ClearInputField();
+                    HideInputField();
+                }
+                else return;
             }
         }
 
@@ -314,7 +346,6 @@ namespace MongoDB_WPF_App
                 db.DeleteArtwork(artwork);
                 LbxResult.Items.Remove(LbxResult.SelectedItem);
                 MessageBox.Show("Artwork deleted successfully!");
-                
             }
             if (selectedCollection == "customers")
             {
@@ -381,7 +412,7 @@ namespace MongoDB_WPF_App
             TxtBoxArtworkTitle.Text = "";
             TxtBoxArtworkDescription.Text = "";
             TxtBoxArtworkPrice.Text = "";
-            CbxArtworkSold.SelectedIndex = 1;
+            CbxArtworkSold.SelectedIndex = 0;
 
             TxtBoxCustomerFirstName.Text = "";
             TxtBoxCustomerLastName.Text = "";
@@ -408,7 +439,6 @@ namespace MongoDB_WPF_App
             else
             {
                 StackPanelArtworkCustomer.Visibility = Visibility.Hidden;
-
             }
         }
 
@@ -426,7 +456,6 @@ namespace MongoDB_WPF_App
 
         private void LbxResult_LostFocus(object sender, RoutedEventArgs e)
         {
-            
         }
 
         //******************************************************
@@ -482,35 +511,36 @@ namespace MongoDB_WPF_App
         //******************
         // MODEL CREATION
         //******************
+
         private ArtworkModel CreateArtworkModelFromInput()
         {
-            try
+            if (ValidateArtworkInput() == true)
             {
-                //more error handling??
-                string title = TxtBoxArtworkTitle.Text;
-                string description = TxtBoxArtworkDescription.Text;
-                double price = Convert.ToDouble(TxtBoxArtworkPrice.Text);
-                bool sold = Convert.ToBoolean((CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString());
-
-
-                //TODO: ability to add selected customer as SoldTo CustomerModel for ArtworkModel
-                CustomerModel soldTo = (CustomerModel)(((FrameworkElement)(TxtBoxArtworkSoldTo)).DataContext);
-
-                ArtworkModel artwork = new ArtworkModel()
+                try
                 {
-                    Title = title,
-                    Description = description,
-                    Price = price,
-                    Sold = sold,
-                    SoldTo= soldTo
-                };
-                return artwork;
+                    string title = TxtBoxArtworkTitle.Text;
+                    string description = TxtBoxArtworkDescription.Text;
+                    double price = Convert.ToDouble(TxtBoxArtworkPrice.Text);
+                    bool sold = Convert.ToBoolean((CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString());
+                    CustomerModel soldTo = (CustomerModel)(((FrameworkElement)(TxtBoxArtworkSoldTo)).DataContext);
+
+                    ArtworkModel artwork = new ArtworkModel()
+                    {
+                        Title = title,
+                        Description = description,
+                        Price = price,
+                        Sold = sold,
+                        SoldTo = soldTo
+                    };
+                    return artwork;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex + "\n An error occured, please try again.");
+                    return null;
+                }
             }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex + "\n An error occured, please try again.");
-                return null;
-            }
+            else return null;
         }
         private CustomerModel CreateCustomerModelFromInput()
         {
@@ -535,6 +565,54 @@ namespace MongoDB_WPF_App
                 MessageBox.Show(ex + "\n An error occured, please try again.");
                 return null;
             }
+        }
+        private bool ValidateArtworkInput()
+        {
+            if (TxtBoxArtworkTitle.Text == "" || TxtBoxArtworkTitle.Text == null)
+            {
+                MessageBox.Show("Please input artwork title.");
+                return false;
+            }
+            if (TxtBoxArtworkDescription.Text == "" || TxtBoxArtworkDescription.Text == null)
+            {
+                MessageBox.Show("Please input artwork description.");
+                return false;
+            }
+            if (TxtBoxArtworkPrice.Text == "" || TxtBoxArtworkPrice.Text == null)
+            {
+                MessageBox.Show("Please input artwork price.");
+                return false;
+            }
+            if (CbxArtworkSold.SelectedIndex == -1)
+            {
+                MessageBox.Show("Please select sale status.");
+                return false;
+            }
+            return true;
+        }
+        private bool ValidateCustomerInput()
+        {
+            if (TxtBoxCustomerFirstName.Text == "" || TxtBoxCustomerFirstName.Text == null)
+            {
+                MessageBox.Show("Please input the customers first name.");
+                return false;
+            }
+            if (TxtBoxCustomerLastName.Text == "" || TxtBoxCustomerLastName.Text == null)
+            {
+                MessageBox.Show("Please input the customers last name.");
+                return false;
+            }
+            if (TxtBoxCustomerPhoneNumber.Text == "" || TxtBoxCustomerPhoneNumber.Text == null)
+            {
+                MessageBox.Show("Please input customer phone number.");
+                return false;
+            }
+            if (TxtBoxCustomerEmailAddress.Text == "" || TxtBoxCustomerEmailAddress.Text == null)
+            {
+                MessageBox.Show("Please input customer email address.");
+                return false;
+            }
+            return true;
         }
     }
 }

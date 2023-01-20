@@ -94,8 +94,8 @@
                 <TextBox x:Name="TxtBoxArtworkPrice" Margin="0 5 0 5"></TextBox>
                 <TextBlock>Sold:</TextBlock>
                 <ComboBox x:Name="CbxArtworkSold" Margin="0 5 0 5" SelectionChanged="CbxArtworkSold_SelectionChanged">
-                    <ComboBoxItem>true</ComboBoxItem>
                     <ComboBoxItem>false</ComboBoxItem>
+                    <ComboBoxItem>true</ComboBoxItem>
                 </ComboBox>
                 <StackPanel x:Name="StackPanelArtworkCustomer" Visibility="Hidden">
                     <TextBlock>Sold to:</TextBlock>
