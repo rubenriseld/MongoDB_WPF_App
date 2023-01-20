@@ -48,7 +48,7 @@ namespace MongoDB_WPF_App
                 TxtBlockStatus.Text = "Connection successful.";
                 BtnConnect.IsEnabled = false;
                 TxtBoxConnect.IsEnabled = false;
-                await Task.Delay(1000);
+                await Task.Delay(800);
                 GridLogin.Visibility = Visibility.Hidden;
                 await Task.Delay(150);
                 GridMain.Visibility = Visibility.Visible;
