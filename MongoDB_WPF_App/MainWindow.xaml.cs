@@ -36,12 +36,15 @@ namespace MongoDB_WPF_App
         //******************
         //    CONNECTION
         //******************
+
+        //enable connect button when text is entered in textbox
         private void TxtBoxConnect_TextChanged(object sender, TextChangedEventArgs e)
         {
             BtnConnect.IsEnabled = true;
         }
         private async void BtnConnect_Click(object sender, RoutedEventArgs e)
         {
+            //check connection with database
             db.SetConnectionString(TxtBoxConnect.Text);
             if (await db.CheckConnection() == true)
             {
@@ -66,6 +69,7 @@ namespace MongoDB_WPF_App
         //    READ ALL
         //******************
 
+        //fill result view with all objects from collection
         private async void BtnReadAll_Click(object sender, RoutedEventArgs e)
         {
             HideInputField();
@@ -95,11 +99,14 @@ namespace MongoDB_WPF_App
         //  READ BY INDEX
         //******************
 
+        //show search input field
         private void BtnReadByIndex_Click(object sender, RoutedEventArgs e)
         {
             HideInputField();
             StackPanelIndexSearch.Visibility = Visibility.Visible;
+            WrapPanelSearchButtons.Visibility = Visibility.Visible;
         }
+        //search selected collection for matching index nr
         private async void BtnEnterSearch_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -131,23 +138,31 @@ namespace MongoDB_WPF_App
             catch
             {
                 MessageBox.Show("Invalid input, please enter a number and try again.");
+                TxtBoxIndexSearch.Text = "";
                 return;
             }
         }
+        //hide search input field
         private void BtnCancelSearch_Click(object sender, RoutedEventArgs e)
         {
-            StackPanelIndexSearch.Visibility = Visibility.Hidden;
+            HideInputField();
+            ClearInputField();
         }
 
         //******************
         //     CREATE
         //******************
 
+        //show create input field
         private void BtnCreate_Click(object sender, RoutedEventArgs e)
         {
+            ClearInputField();
+            HideInputField();
             ShowInputField();
             WrapPanelCreateButtons.Visibility = Visibility.Visible;
         }
+
+        //create new object from input field values
         private async void BtnEnterCreateInput_Click(object sender, RoutedEventArgs e)
         {
             string selectedCollection = GetSelectedCollection();
@@ -202,6 +217,8 @@ namespace MongoDB_WPF_App
                 else return;
             }
         }
+
+        //hide create input fields
         private void BtnCancelCreateInput_Click(object sender, RoutedEventArgs e)
         {
             HideInputField();
@@ -210,18 +227,13 @@ namespace MongoDB_WPF_App
 
         //******************
         //     UPDATE
-        //******************
+        //******************        
 
-        private void BtnSelect_Click(object sender, RoutedEventArgs e)
-        {
-            var customer = GetCustomerFromSelection();
-            TxtBoxArtworkSoldTo.DataContext = customer;
-            TxtBoxArtworkSoldTo.Text = customer.Id.ToString();
-        }
         //update button by result view, moves selected object to input fields for editing
         private void BtnUpdate_Click(object sender, RoutedEventArgs e)
         {
             ClearInputField();
+            HideInputField();
             ShowInputField();
 
             WrapPanelUpdateButtons.Visibility = Visibility.Visible;
@@ -277,6 +289,7 @@ namespace MongoDB_WPF_App
                     {
                         artwork.SoldTo = null;
                     }
+
                     await db.UpdateArtwork(artwork);
 
                     MessageBox.Show("Artwork updated successfully!");
@@ -322,6 +335,7 @@ namespace MongoDB_WPF_App
             }
         }
 
+        //hide update input fields
         private void BtnCancelUpdateInput_Click(object sender, RoutedEventArgs e)
         {
             HideInputField();
@@ -332,6 +346,7 @@ namespace MongoDB_WPF_App
         //     DELETE
         //******************
 
+        //delete selected object from result view
         private void BtnDelete_Click(object sender, RoutedEventArgs e)
         {
             string selectedCollection = GetSelectedCollection();
@@ -353,11 +368,15 @@ namespace MongoDB_WPF_App
 
         //******************************************************
         //
-        //                     SELECTION
+        //                  MISC OPERATIONS
         //
         //******************************************************
 
-        //enable select button to set current collection
+        //******************
+        //   SELECTION
+        //******************
+
+        //enable select button to set current collection when an option is chosen
         private void CbxSelectCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BtnSelectCollection.IsEnabled = true;
@@ -399,8 +418,10 @@ namespace MongoDB_WPF_App
         {
             StackPanelCustomerInput.Visibility = Visibility.Hidden;
             StackPanelArtworkInput.Visibility = Visibility.Hidden;
+            StackPanelIndexSearch.Visibility= Visibility.Hidden;
             WrapPanelCreateButtons.Visibility = Visibility.Hidden;
             WrapPanelUpdateButtons.Visibility = Visibility.Hidden;
+            WrapPanelSearchButtons.Visibility = Visibility.Hidden;
         }
         private void ClearInputField()
         {
@@ -414,9 +435,11 @@ namespace MongoDB_WPF_App
             TxtBoxCustomerLastName.Text = "";
             TxtBoxCustomerPhoneNumber.Text = "";
             TxtBoxCustomerEmailAddress.Text = "";
+
+            TxtBoxIndexSearch.Text = "";
         }
 
-        //shows SoldTo field only when sold==true
+        //shows SoldTo field only when sold==true, and fill result view with customers for selection on create/update with ArtworkModel
         private async void CbxArtworkSold_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string soldSelection = (CbxArtworkSold.SelectedItem as ComboBoxItem).Content.ToString();
@@ -450,19 +473,11 @@ namespace MongoDB_WPF_App
             }
         }
 
-        private void LbxResult_LostFocus(object sender, RoutedEventArgs e)
-        {
-        }
-
-        //******************************************************
-        //
-        //                  MISC OPERATIONS
-        //
-        //******************************************************
-
         //******************
         //   RESULT VIEW
         //******************
+        
+        //adding objects to result view (Listbox)
         private void AddArtworkToResultView(ArtworkModel artwork)
         {
             ListBoxItem addedResult = new ListBoxItem();
@@ -504,10 +519,17 @@ namespace MongoDB_WPF_App
             return customer;
         }
 
+        //clear result view
+        private void BtnClear_Click(object sender, RoutedEventArgs e)
+        {
+            LbxResult.Items.Clear();
+        }
+
         //******************
         // MODEL CREATION
         //******************
 
+        //creation from input fields
         private ArtworkModel CreateArtworkModelFromInput()
         {
             if (ValidateArtworkInput() == true)
@@ -562,6 +584,8 @@ namespace MongoDB_WPF_App
                 return null;
             }
         }
+
+        //validation
         private bool ValidateArtworkInput()
         {
             if (TxtBoxArtworkTitle.Text == "" || TxtBoxArtworkTitle.Text == null)
@@ -610,5 +634,13 @@ namespace MongoDB_WPF_App
             }
             return true;
         }
+
+        //select customer from result view to assign as SoldTo for an ArtworkModel
+        private void BtnSelect_Click(object sender, RoutedEventArgs e)
+        {
+            var customer = GetCustomerFromSelection();
+            TxtBoxArtworkSoldTo.DataContext = customer;
+            TxtBoxArtworkSoldTo.Text = customer.Id.ToString();
+        }        
     }
 }
