@@ -165,7 +165,7 @@ namespace MongoDB_WPF_App
                     }
                     else
                     {
-                        var sortedArtworks = existingArtworks.OrderBy(a => a.Index).ToList();
+                        var sortedArtworks = existingArtworks.OrderByDescending(a => a.Index).ToList();
                         var highestIndex = sortedArtworks.First();
 
                         artwork.Index = highestIndex.Index + 1;
@@ -190,7 +190,7 @@ namespace MongoDB_WPF_App
                     }
                     else
                     {
-                        var sortedCustomers = existingCustomers.OrderBy(c => c.Index).ToList();
+                        var sortedCustomers = existingCustomers.OrderByDescending(c => c.Index).ToList();
                         var highestIndex = sortedCustomers.First();
 
                         customer.Index = highestIndex.Index + 1;
